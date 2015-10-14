@@ -1,10 +1,12 @@
 /**
  * @author Jessica Thatcher
  * 
- * @version 1.0, Oct 4, 2015
+ * @version 2.0, Oct 13, 2015
  */
-#include <Adafruit_GPS.h>
 #include <SoftwareSerial.h>
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BMP085_U.h>
 
 #define rMotor 13 /**< The variable to control the right motor controller */
 #define lMotor 12 /**< The variable to control the left motor controller */
@@ -24,10 +26,13 @@ int backRead = 0;   /**< A variable to hold the average of the last three readin
 int leftRead = 0;   /**< A variable to hold the average of the last three readings from the left sensor */
 int rightRead = 0;  /**< A variable to hold the average of the last three readings from the right sensor */
 
-static int SLOW_THRESHOLD = 300;  /**< The sensor value to signal the robot should slow down */
-static int STOP_THRESHOLD = 200;  /**< The sensor value to siganl the robot to stop now */
-
 char currentMotion = ' ';   /**< Keeps track of whether the robot is moving forward or backward */
+int currentSpeed = 0;       /**< Keeps track of the robot's current speed */
+
+static int SLOW_THRESHOLD = 300;  /**< The sensor value to signal the robot should slow down */
+static int STOP_THRESHOLD = 200;  /**< The sensor value to signal the robot to stop now */
+
+Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085); /**< The altitude sensor */
 
 /** \brief Sets pin modes and initializes motors.
  *  
@@ -43,12 +48,7 @@ void setup() {
   pinMode(backSensor, INPUT);
   pinMode(rightSensor, INPUT);
   pinMode(leftSensor, INPUT);
-  pinMode(rxPin, INPUT);        //declare serial read pin as input
-  pinMode(txPin, OUTPUT);       //declare serial transmit pin as output
   Serial.begin(4800);
-  for(int i = 0; i < 300; i++){ //initialize input buffer for GPS reading
-    input[i] = ' ';
-  }
   delay(5);
   digitalWrite(rMotor, HIGH); //send initializing pulses to the motor controllers
   digitalWrite(lMotor, HIGH);
@@ -56,6 +56,7 @@ void setup() {
   digitalWrite(rMotor, LOW);
   digitalWrite(lMotor, LOW);
   delay(20);
+  Serial.begin(9600);
 }
 
 /** \brief Controls the tasks the robot completes.
@@ -66,21 +67,38 @@ void setup() {
 void loop() {
 }
 
-/** \brief Makes the motor controllers accelerate forward.
+/** \brief Increases the robot's speed.
  * 
  * This function sends pulses to each motor controller so that the 
- * robot gradually sppeds up to top speed.
+ * robot gradually speeds up to top speed. If the robot's current 
+ * motion is forward, the robot will speed up in the forward direction.
+ * If the robot's current direction is backward, the robot will speed
+ * up in the backward direction.
  */
 void speedUp() {
-  currentMotion = 'F';
-  for(int i = 1500; i <= 1750; i++){
-    digitalWrite(rMotor, HIGH);
-    digitalWrite(rMotor, HIGH);
-    delayMicroseconds(i);
-    digitalWrite(lMotor, LOW);
-    digitalWrite(lMotor, LOW);
-    delayMicroseconds(5250);
-    delayMicroseconds(150);
+  if(currentMotion == 'F'){
+    for(float i = currentSpeed; i <= currentSpeed + 250; i += 0.1){
+      digitalWrite(rMotor, HIGH);
+      digitalWrite(rMotor, HIGH);
+      delayMicroseconds(i);
+      digitalWrite(lMotor, LOW);
+      digitalWrite(lMotor, LOW);
+      delayMicroseconds(5250);
+      delayMicroseconds(150);
+      currentSpeed = i;
+    }
+  }
+  else if(currentMotion == 'B'){
+    for(float j = currentSpeed; j <= currentSpeed - 250; j -= 0.1){
+      digitalWrite(rMotor, HIGH);
+      digitalWrite(rMotor, HIGH);
+      delayMicroseconds(j);
+      digitalWrite(lMotor, LOW);
+      digitalWrite(lMotor, LOW);
+      delayMicroseconds(5250);
+      delayMicroseconds(150);
+      currentSpeed = j;
+    }
   }
 }
 
@@ -275,5 +293,26 @@ int findLocation(int room){
  */
 void wander(){
   
+}
+
+/** \brief Reads altitude from BMP180 and determines the floor.
+ *  
+ *  This function retrieves the altitude from the BMP180 and uses
+ *  this value to determine what floor the robot is on.
+ */
+int getFloor(){
+  sensors_event_t event;
+  bmp.getEvent(&event);
+  int altitude;
+
+  if (event.pressure){ //if the sensor read correctly
+    float seaLevelPressure = SENSORS_PRESSURE_SEALEVELHPA;
+    Serial.print("Altitude:    "); 
+    Serial.print(bmp.pressureToAltitude(seaLevelPressure,
+                                        event.pressure));
+    altitude = bmp.pressureToAltitude(seaLevelPressure, event.pressure);
+    /**< The calculated altitude from the pressure sensor */
+  }
+  //TODO: CREATE LOOKUP TABLE AND RETURN THE FLOOR
 }
 
