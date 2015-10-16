@@ -61,8 +61,9 @@ void setup() {
 
 /** \brief Controls the tasks the robot completes.
  * 
- * The loop calls functions to determine what tasks Robbie currently needs to complete.
- * These tasks are determined by input from the touchscreen.
+ * The loop calls functions to determine what tasks Robbie
+ * currently needs to complete. These tasks are determined
+ * by input from the touchscreen.
  */
 void loop() {
 }
@@ -102,7 +103,7 @@ void speedUp() {
   }
 }
 
-/** \brief Continually sends pulses to motors so that they move forward.
+/** \brief Causes the robot to move forward.
  * 
  * This function sends pulses of equal width to the motors so that the
  * robot moves forward at a constant speed.
