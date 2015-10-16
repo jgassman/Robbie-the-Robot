@@ -34,6 +34,16 @@ void setup(){
 void loop(){
   sensors();
   printSensors();
+
+  if(lineL == 1){
+    left();
+  }
+  else if(lineR == 1){
+    right();
+  }
+  else{
+    forward();
+  }
 }
 
 /** \brief Causes the robot to move forward.
