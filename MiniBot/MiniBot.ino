@@ -8,6 +8,7 @@ Servo servoRight;
 
 int lineL;
 int lineR;
+bool willTurn = 0;
 
  /** \brief Sets pin modes and initializes motors.
  *  
@@ -34,16 +35,58 @@ void setup(){
 void loop(){
   sensors();
   printSensors();
-
-  if(lineL == 1){
-    left();
-  }
-  else if(lineR == 1){
-    right();
-  }
-  else{
+  
+ while(!willTurn){
+  while(lineL == 1){
     forward();
+    sensors();
+    printSensors();
   }
+  
+   unsigned long startTime = millis();
+  
+   while(millis() - startTime < 1000){
+      forward();
+      sensors();
+      if(lineL == 1){
+        willTurn = 1; 
+        break;
+      }
+    }
+ }
+  
+  left();
+  delay(1300);
+  cease();
+  delay(500);
+  sensors();
+  printSensors();
+
+  while(!(lineL == 0)){
+    forward();
+    sensors();
+    printSensors();
+  }
+  right();
+  delay(1300);
+  cease();
+  delay(500);
+  sensors();
+  printSensors();
+
+  while(!(lineL == 0)){
+    forward();
+    sensors();
+    printSensors();
+  }
+
+  cease();
+  delay(1000);
+  right();
+  delay(3000);
+  cease();
+  
+  delay(2000);
 }
 
 /** \brief Causes the robot to move forward.
@@ -52,8 +95,8 @@ void loop(){
  * robot moves forward at a constant speed.
  */
 void forward(){
-  servoLeft.writeMicroseconds(1700);         // Left wheel counterclockwise
-  servoRight.writeMicroseconds(1300);        // Right wheel clockwise
+  servoLeft.writeMicroseconds(1300);         // Left wheel counterclockwise
+  servoRight.writeMicroseconds(1700);        // Right wheel clockwise
   //delay(3000);                               // ...for 3 seconds
 }
 
@@ -64,8 +107,8 @@ void forward(){
  * constant speed.
  */
 void backward(){
-  servoLeft.writeMicroseconds(1300);   // Left wheel clockwise
-  servoRight.writeMicroseconds(1700);  // Right wheel counterclockwise
+  servoLeft.writeMicroseconds(1700);   // Left wheel clockwise
+  servoRight.writeMicroseconds(1300);  // Right wheel counterclockwise
 }
 
 /** \brief Causes the robot to turn left.
@@ -75,7 +118,7 @@ void backward(){
  */
 void left(){
   servoLeft.writeMicroseconds(1300);   // Left wheel clockwise
-  servoRight.writeMicroseconds(1300);  // Right wheel clockwise
+  servoRight.writeMicroseconds(1500);  // Right wheel clockwise
 }
 
 /** \brief Causes the robot to turn right.
@@ -84,8 +127,17 @@ void left(){
  * so that the robot turns right.
  */
 void right(){
-  servoLeft.writeMicroseconds(1700);   // Left wheel counterclockwise
-  servoRight.write Microseconds(1700); // Right wheel counterclockwise
+  servoLeft.writeMicroseconds(1500);   // Left wheel counterclockwise
+  servoRight.writeMicroseconds(1700); // Right wheel counterclockwise
+}
+
+/** \brief Causes the robot to stop.
+ *  
+ * This function stops both wheels.
+ */
+void cease(){
+  servoLeft.writeMicroseconds(1500);   // Left wheel clockwise
+  servoRight.writeMicroseconds(1500);  // Right wheel clockwise
 }
 
 /** \brief Checks line sensors.
@@ -102,6 +154,7 @@ int sensors(){
  * This function prints the sensor values to the serial monitor.
  */
 void printSensors(){
+  Serial.print("Right Line Sensor = ");
   Serial.println(lineR);
   Serial.print("Left Line Sensor = ");
   Serial.println(lineL);

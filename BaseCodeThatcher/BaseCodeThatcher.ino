@@ -317,6 +317,5 @@ int getFloor(){
   //TODO: CREATE LOOKUP TABLE AND RETURN THE FLOOR
 }
 
-//Function interacts with grid, based on pulsewidth/velocity
-//Do internal mapping to see which square it should be in. If 
-//still moving forward mark it as an OKAY square
+//Add function to keep track of rotations with magnet sensor
+
