@@ -1,14 +1,12 @@
 #include <Servo.h>                           // Include servo library
- 
-#define lineR_pin 10     //line sensors
-#define lineL_pin 11
+
+#define line_pin 11
 
 Servo servoLeft;                             // Declare left and right servos
 Servo servoRight;
 
-int lineL;
-int lineR;
-bool willTurn = 0;
+int line;
+int lineCount = 0;
 
  /** \brief Sets pin modes and initializes motors.
  *  
@@ -16,8 +14,7 @@ bool willTurn = 0;
  * sets the pins connected to the line sensors as input pins.
  */
 void setup(){
-  pinMode(lineR_pin, INPUT);  // declare pinmode for line tracking
-  pinMode(lineL_pin, INPUT);
+  pinMode(line_pin, INPUT);  // declare pinmode for line tracking
   
   tone(4, 3000, 1000);                       // Play tone for 1 second
   delay(1000);                               // Delay to finish tone
@@ -36,37 +33,31 @@ void loop(){
   sensors();
   printSensors();
   
- while(!willTurn){
-  while(lineL == 1){
+ while(lineCount < 2){
     forward();
     sensors();
     printSensors();
-  }
-  
-   unsigned long startTime = millis();
-  
-   while(millis() - startTime < 1000){
-      forward();
-      sensors();
-      if(lineL == 1){
-        willTurn = 1; 
-        break;
-      }
+    if(line == 1){
+      lineCount += 1;
     }
  }
-  
-  left();
-  delay(1300);
-  cease();
-  delay(500);
-  sensors();
-  printSensors();
 
-  while(!(lineL == 0)){
+ lineCount = 0;
+ left();
+ delay(1300);
+ cease();
+ delay(500);
+
+  while(lineCount < 5)){
     forward();
     sensors();
     printSensors();
+     if(line == 1){
+      lineCount += 1;
+    }
   }
+
+  lineCount = 0;
   right();
   delay(1300);
   cease();
@@ -74,12 +65,16 @@ void loop(){
   sensors();
   printSensors();
 
-  while(!(lineL == 0)){
+  while(lineCount < 2){
     forward();
     sensors();
     printSensors();
+     if(line == 1){
+      lineCount += 1;
+    }
   }
 
+  lineCount = 0;
   cease();
   delay(1000);
   right();
@@ -118,7 +113,7 @@ void backward(){
  */
 void left(){
   servoLeft.writeMicroseconds(1300);   // Left wheel clockwise
-  servoRight.writeMicroseconds(1500);  // Right wheel clockwise
+  servoRight.writeMicroseconds(1700);  // Right wheel clockwise
 }
 
 /** \brief Causes the robot to turn right.
@@ -127,7 +122,7 @@ void left(){
  * so that the robot turns right.
  */
 void right(){
-  servoLeft.writeMicroseconds(1500);   // Left wheel counterclockwise
+  servoLeft.writeMicroseconds(1300);   // Left wheel counterclockwise
   servoRight.writeMicroseconds(1700); // Right wheel counterclockwise
 }
 
@@ -145,8 +140,7 @@ void cease(){
  * This function reads the input from the line sensors.
  */
 int sensors(){
-  lineR = digitalRead(lineR_pin); 
-  lineL = digitalRead(lineL_pin);
+  line = digitalRead(line_pin); 
 }
 
 /** \brief Prints sensor values.
@@ -154,9 +148,7 @@ int sensors(){
  * This function prints the sensor values to the serial monitor.
  */
 void printSensors(){
-  Serial.print("Right Line Sensor = ");
-  Serial.println(lineR);
-  Serial.print("Left Line Sensor = ");
-  Serial.println(lineL);
+  Serial.print("Line Sensor = ");
+  Serial.println(line);
   Serial.println("--------------------------------------");
 }
