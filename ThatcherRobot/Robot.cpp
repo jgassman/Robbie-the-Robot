@@ -1,71 +1,54 @@
-/**
- * @author Jessica Thatcher
- * 
- * @version 2.0, Oct 13, 2015
- */
-#include <SoftwareSerial.h>
-#include <Wire.h>
-#include <Adafruit_Sensor.h>
-#include <Adafruit_BMP085_U.h>
+/*
+  Robot.cpp - Library for controlling a robot.
+  Created by Jessica Thatcher, November 9, 2015.
+  Released into the public domain.
+*/
 
-#define rMotor 13 /**< The variable to control the right motor controller */
-#define lMotor 12 /**< The variable to control the left motor controller */
+#include "Arduino.h"
+#include "Robot.h"
 
-#define frontSensor A1    /**< \def The pin connected to the front sensor */
-#define backSensor A2     /**< \def The pin connected to the back sensor */
-#define rightSensor A3    /**< \def The pin connected to the right sensor */
-#define leftSensor A4     /**< \def The pin connected to the left sensor */
+Robot::Robot()
+{
+	#define rMotor 13 /**< The variable to control the right motor controller */
+	#define lMotor 12 /**< The variable to control the left motor controller */
 
-int frontReading[3] = {0, 0, 0};  /**< An array to hold readings from the front sensor */
-int backReading[3] = {0, 0, 0};   /**< An array to hold readings from the back sensor */
-int rightReading[3] = {0, 0, 0};  /**< An array to hold readings from the right sensor */
-int leftReading[3] = {0, 0, 0,};  /**< An array to hold readings from the left sensor */
+	#define frontSensor A1    /**< \def The pin connected to the front sensor */
+	#define backSensor A2     /**< \def The pin connected to the back sensor */
+	#define rightSensor A3    /**< \def The pin connected to the right sensor */
+	#define leftSensor A4     /**< \def The pin connected to the left sensor */
 
-int frontRead = 0;  /**< A variable to hold the average of the last three readings from the front sensor */
-int backRead = 0;   /**< A variable to hold the average of the last three readings from the back sensor */
-int leftRead = 0;   /**< A variable to hold the average of the last three readings from the left sensor */
-int rightRead = 0;  /**< A variable to hold the average of the last three readings from the right sensor */
+	int frontReading[3] = {0, 0, 0};  /**< An array to hold readings from the front sensor */
+	int backReading[3] = {0, 0, 0};   /**< An array to hold readings from the back sensor */
+	int rightReading[3] = {0, 0, 0};  /**< An array to hold readings from the right sensor */
+	int leftReading[3] = {0, 0, 0,};  /**< An array to hold readings from the left sensor */
 
-char currentMotion = ' ';   /**< Keeps track of whether the robot is moving forward or backward */
-int currentSpeed = 0;       /**< Keeps track of the robot's current speed */
+	int frontRead = 0;  /**< A variable to hold the average of the last three readings from the front sensor */
+	int backRead = 0;   /**< A variable to hold the average of the last three readings from the back sensor */
+	int leftRead = 0;   /**< A variable to hold the average of the last three readings from the left sensor */
+	int rightRead = 0;  /**< A variable to hold the average of the last three readings from the right sensor */
 
-static int SLOW_THRESHOLD = 300;  /**< The sensor value to signal the robot should slow down */
-static int STOP_THRESHOLD = 200;  /**< The sensor value to signal the robot to stop now */
+	char currentMotion = ' ';   /**< Keeps track of whether the robot is moving forward or backward */
+	int currentSpeed = 0;       /**< Keeps track of the robot's current speed */
 
-Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085); /**< The altitude sensor */
-
-/** \brief Sets pin modes and initializes motors.
- *  
- * This function declares the pins connected to the motors as output
- * pins and sends initializing pulses to the motor controllers. It also
- * sets the pins connected to the IR sensors as input pins.
- */
-void setup() {
-  delay(5000);
-  pinMode(rMotor, OUTPUT);    //declare motor pins as output
-  pinMode(lMotor, OUTPUT);
-  pinMode(frontSensor, INPUT);  //declare sensor pins as input
-  pinMode(backSensor, INPUT);
-  pinMode(rightSensor, INPUT);
-  pinMode(leftSensor, INPUT);
-  Serial.begin(4800);
-  delay(5);
-  digitalWrite(rMotor, HIGH); //send initializing pulses to the motor controllers
-  digitalWrite(lMotor, HIGH);
-  delayMicroseconds(1500);
-  digitalWrite(rMotor, LOW);
-  digitalWrite(lMotor, LOW);
-  delay(20);
-  Serial.begin(9600);
-}
-
-/** \brief Controls the tasks the robot completes.
- * 
- * The loop calls functions to determine what tasks Robbie
- * currently needs to complete. These tasks are determined
- * by input from the touchscreen.
- */
-void loop() {
+	static int SLOW_THRESHOLD = 300;  /**< The sensor value to signal the robot should slow down */
+	static int STOP_THRESHOLD = 200;  /**< The sensor value to signal the robot to stop now */
+	Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085); /**< The altitude sensor */
+	
+	pinMode(rMotor, OUTPUT);
+	pinMode(lMotor, OUTPUT);
+	pinMode(frontSensor, INPUT);
+	pinMode(backSensor, INPUT);
+	pinMode(rightSensor, INPUT);
+	pinMode(leftSensor, INPUT);
+	Serial.begin(4800);
+	delay(5);
+	digitalWrite(rMotor, HIGH);
+	digitalWrite(lMotor, HIGH);
+	delayMicroseconds(1500);
+	digitalWrite(rMotor, LOW);
+	digitalWrite(lMotor, LOW);
+	delay(20);
+	Serial.begin(9600);
 }
 
 /** \brief Increases the robot's speed.
@@ -76,7 +59,7 @@ void loop() {
  * If the robot's current direction is backward, the robot will speed
  * up in the backward direction.
  */
-void speedUp() {
+void Robot::speedUp() {
   if(currentMotion == 'F'){
     for(float i = currentSpeed; i <= currentSpeed + 250; i += 0.1){
       digitalWrite(rMotor, HIGH);
@@ -108,7 +91,7 @@ void speedUp() {
  * This function sends pulses of equal width to the motors so that the
  * robot moves forward at a constant speed.
  */
-void forward(){
+void Robot::forward(){
   currentMotion = 'F';
   digitalWrite(rMotor, HIGH);
   digitalWrite(rMotor, HIGH);
@@ -124,7 +107,7 @@ void forward(){
  * controllers so that the robot will move backward at a
  * constant speed.
  */
-void backward() {
+void Robot::backward() {
   currentMotion = 'B';
   digitalWrite(rMotor, HIGH);
   digitalWrite(lMotor, HIGH);
@@ -134,12 +117,12 @@ void backward() {
   delayMicroseconds(5250);
 }
 
-/** \brief Accelerates the robot backwards.
+** \brief Accelerates the robot backwards.
  * 
  * This function sends pulses of decreasing width to the motor
  * controllers so that the robot speeds up in the backwards direction.
  */
-void speedBack(){
+void Robot::speedBack(){
   currentMotion = 'B';
   for(int i = 1500; i >= 1250; i++){
     digitalWrite(rMotor, HIGH);
@@ -159,7 +142,7 @@ void speedBack(){
  * controllers so that the robot slows to a stop from moving
  * forwards.
  */
-void stopMotion(){
+void Robot::stopMotion(){
   if(currentMotion == 'B'){
     for(int j = 1250; j <= 1500; j++){
       digitalWrite(rMotor, HIGH);
@@ -191,7 +174,7 @@ void stopMotion(){
  * left motor controller to forward so that the robot 
  * turns left.
  */
-void right() {
+void Robot::right() {
   for(int i = 1500; i <= 1750; i++){
     digitalWrite(lMotor, HIGH);
     delayMicroseconds(i);
@@ -209,7 +192,7 @@ void right() {
  * This function keeps the robot from moving by sending pulses of the correct width
  * to the motor controllers.
  */
-void stayStopped(){
+void Robot::stayStopped(){
   currentMotion = 'S';
   digitalWrite(lMotor, HIGH);
   delayMicroseconds(1500);
@@ -226,7 +209,7 @@ void stayStopped(){
  * right motor controller to forward so that the robot 
  * turns left.
  */
-void left(){
+void Robot::left(){
   for(int i = 1500; i<= 1750; i++){
     digitalWrite(rMotor, HIGH);
     delayMicroseconds(i);
