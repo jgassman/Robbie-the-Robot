@@ -16,8 +16,8 @@ int lineCount = 0;
 void setup(){
   pinMode(line_pin, INPUT);  // declare pinmode for line tracking
   
-  tone(4, 3000, 1000);                       // Play tone for 1 second
-  delay(1000);                               // Delay to finish tone
+ // tone(4, 3000, 1000);                       // Play tone for 1 second
+  //delay(1000);                               // Delay to finish tone
 
   servoLeft.attach(13);                      // Attach left signal to pin 13
   servoRight.attach(12);                     // Attach right signal to pin 12
@@ -31,56 +31,55 @@ void setup(){
  */
 void loop(){
   sensors();
-  printSensors();
+  forward();
   
- while(lineCount < 2){
-    forward();
-    sensors();
-    printSensors();
-    if(line == 1){
-      lineCount += 1;
-    }
- }
-
- lineCount = 0;
- left();
- delay(1300);
- cease();
- delay(500);
-
-  while(lineCount < 5)){
-    forward();
-    sensors();
-    printSensors();
-     if(line == 1){
-      lineCount += 1;
-    }
-  }
-
-  lineCount = 0;
-  right();
-  delay(1300);
-  cease();
-  delay(500);
-  sensors();
-  printSensors();
-
   while(lineCount < 2){
     forward();
     sensors();
-    printSensors();
-     if(line == 1){
+    if(line == 1){
       lineCount += 1;
+      delay(1000);
+    }
+    delay(150);
+  }
+ 
+ lineCount = 0;
+ Serial.println("Left!");
+ left();
+ delay(575);
+ cease();
+ delay(500);
+
+ while(lineCount < 7){
+   forward();
+   sensors();
+   if(line == 1){
+     lineCount += 1;
+     delay(1000);
+   }
+ }
+
+  lineCount = 0;
+  Serial.println("Right!");
+  right();
+  delay(575);
+  cease();
+  delay(500);
+  sensors();
+  
+  while(lineCount < 1){
+    forward();
+    sensors();
+    if(line == 1){
+     lineCount += 1;
+     delay(1000);
     }
   }
 
   lineCount = 0;
   cease();
   delay(1000);
-  right();
-  delay(3000);
-  cease();
-  
+
   delay(2000);
 }
 
@@ -113,7 +112,7 @@ void backward(){
  */
 void left(){
   servoLeft.writeMicroseconds(1300);   // Left wheel clockwise
-  servoRight.writeMicroseconds(1700);  // Right wheel clockwise
+  servoRight.writeMicroseconds(1300);  // Right wheel clockwise
 }
 
 /** \brief Causes the robot to turn right.
@@ -122,7 +121,7 @@ void left(){
  * so that the robot turns right.
  */
 void right(){
-  servoLeft.writeMicroseconds(1300);   // Left wheel counterclockwise
+  servoLeft.writeMicroseconds(1700);   // Left wheel counterclockwise
   servoRight.writeMicroseconds(1700); // Right wheel counterclockwise
 }
 
@@ -141,6 +140,7 @@ void cease(){
  */
 int sensors(){
   line = digitalRead(line_pin); 
+  printSensors();
 }
 
 /** \brief Prints sensor values.
@@ -152,3 +152,4 @@ void printSensors(){
   Serial.println(line);
   Serial.println("--------------------------------------");
 }
+

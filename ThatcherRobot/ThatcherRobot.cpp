@@ -5,7 +5,7 @@
 */
 
 #include "Arduino.h"
-#include "Robot.h"
+#include "ThatcherRobot.h"
 
 Robot::Robot()
 {

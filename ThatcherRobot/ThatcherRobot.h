@@ -3,10 +3,11 @@
   Created by Jessica Thatcher, November 9, 2015.
   Released into the public domain.
 */
-#ifndef Robot_h
-#define Robot_h
+#ifndef ThatcherRobot_h
+#define ThatcherRobot_h
 
 #include "Arduino.h"
+#include "Adafruit_BMP085_U.h"
 
 class Robot
 {
