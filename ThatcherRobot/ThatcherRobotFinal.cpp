@@ -8,17 +8,17 @@
 #include "ThatcherRobotFinal.h"
 
 Robot::Robot(){
-	#define rMotor 13 /**< The variable to control the right motor controller */
-	#define lMotor 12 /**< The variable to control the left motor controller */
+	#define rMotor 13 /** The variable to control the right motor controller */
+	#define lMotor 12 /** The variable to control the left motor controller */
 
-	#define fSensor A1    /**< \def The pin connected to the front sensor */
-	#define bSensor A2     /**< \def The pin connected to the back sensor */
+	#define fSensor A1     /** \def The pin connected to the front sensor */
+	#define bSensor A2     /** \def The pin connected to the back sensor */
 
-	int fValue;  /**< A variable to hold the reading from the front sensor */
-	int bValue;   /**< A variable to hold the reading from the back sensor */
+	int fValue;  /** A variable to hold the reading from the front sensor */
+	int bValue;   /** A variable to hold the reading from the back sensor */
 
-	const static int PROX_THRESHOLD = 150;  /**< The sensor value to signal the robot should stop */
-	Adafruit_BMP085_Unified bmp;	/**< The altitude sensor */
+	const static int PROX_THRESHOLD = 150;  /** The sensor value to signal the robot should stop */
+	Adafruit_BMP085_Unified bmp;	/** The altitude sensor */
 	
 	pinMode(rMotor, OUTPUT);
 	pinMode(lMotor, OUTPUT);
@@ -38,10 +38,7 @@ Robot::Robot(){
 /** \brief Increases the robot's speed.
  * 
  * This function sends pulses to each motor controller so that the 
- * robot gradually speeds up to top speed. If the robot's current 
- * motion is forward, the robot will speed up in the forward direction.
- * If the robot's current direction is backward, the robot will speed
- * up in the backward direction.
+ * robot gradually speeds up to top speed.
  */
 void Robot::speedUp() {
   for(int i = 1500; i <= 1750; i+=10){
@@ -62,6 +59,8 @@ void Robot::speedUp() {
  * 
  * This function sends pulses of equal width to the motors so that the
  * robot moves forward at a constant speed.
+ *
+ * \param[in] goTime The time to go forward in milliseconds.
  */
 void Robot::forward(int goTime){
   int goneTime = 0;
@@ -84,7 +83,7 @@ void Robot::forward(int goTime){
 
 /** \brief Causes the robot to move backward.
  *  
- * This function sends pulses of constant width to both motor 
+ * This function sends pulses of equal width to both motor 
  * controllers so that the robot will move backward at a
  * constant speed.
  * 
@@ -128,11 +127,9 @@ void Robot::speedBack(){
 
 /** \brief Stops the robot.
  * 
- * This function sends pulses of increasing width to the motor
- * controllers so that the robot slows to a stop from moving
- * backwards or sends pulses of decreasing width to the motor
- * controllers so that the robot slows to a stop from moving
- * forwards.
+ * This function sends pulses of equal width to both motors
+ * with the correct pulse width to cause the motors to stop
+ * moving.
  */
 void Robot::stopRobot(){
   digitalWrite(rMotor,HIGH);
@@ -231,7 +228,8 @@ void Robot::wander(){
 /** \brief Makes the robot travel from room 214 to room 215.
  * 
  * This function calls the forward, left, right, and speedUp functions
- * to get the robot from room 214 to room 215 in the Physics building.
+ * in the correct sequence to get the robot from room 214 to room 215
+ * in the Physics building.
  */
 void Robot::from214To215(){
   Robot::forward(2000);
@@ -242,7 +240,7 @@ void Robot::from214To215(){
   forward(500);
 }
 
-/** \brief Reads altitude from BMP180 and determines the floor.
+/** \brief Determines the current floor.
  *  
  *  This function retrieves the altitude from the BMP180 and uses
  *  this value to determine what floor the robot is on.
@@ -258,7 +256,6 @@ int Robot::getFloor(){
     Serial.print(bmp.pressureToAltitude(seaLevelPressure,
                                         event.pressure));
     altitude = bmp.pressureToAltitude(seaLevelPressure, event.pressure);
-    /**< The calculated altitude from the pressure sensor */
   }
   //TODO: CREATE LOOKUP TABLE AND RETURN THE FLOOR
 }
