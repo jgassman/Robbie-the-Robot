@@ -26,12 +26,14 @@ void setup() {
 }
 
 void loop() {
-  from214To215();
-  //wander();
+  //from214To215();
+  //forward(10000);
+  //stopRobot();
+  wander();
   //speedUp();
   //forward(3000);
   //slowDown();
-  delay(5000);
+  //delay(5000);
 }
 
 void forward(int goTime){
@@ -45,6 +47,8 @@ void forward(int goTime){
     digitalWrite(lMotor, HIGH);
     delayMicroseconds(1750);
     digitalWrite(rMotor,LOW);
+    //digitalWrite(lMotor, HIGH);
+    //delayMicroseconds(1750);
     digitalWrite(lMotor, LOW);
     delayMicroseconds(5250);
     goneTime += millis() - curTime;
@@ -122,6 +126,7 @@ void stopRobot(){
 
 void right(){
   stopRobot();
+  delay(500);
   digitalWrite(lMotor, HIGH);
   delayMicroseconds(1750);
   digitalWrite(lMotor,LOW);
@@ -129,12 +134,14 @@ void right(){
   delayMicroseconds(1500);
   digitalWrite(rMotor, LOW);
   delayMicroseconds(5250);
-  delay(1100);
+  delay(1200);
   stopRobot();
+  delay(500);
 }
 
 void left(){
   stopRobot();
+  delay(500);
   digitalWrite(rMotor, HIGH);
   delayMicroseconds(1750);
   digitalWrite(rMotor,LOW);
@@ -142,30 +149,35 @@ void left(){
   delayMicroseconds(1500);
   digitalWrite(lMotor, LOW);
   delayMicroseconds(5250);
-  delay(1250);
+  delay(1200);
   stopRobot();
+  delay(500);
 }
 
 void wander(){
-  int randNum = random(101);
-  if(randNum % 5 == 0){
-    if(randNum / 10 % 2 == 0){
-      right();
+  while(true){
+    int randNum = random(101);
+    if(randNum % 5 == 0){
+      if(randNum / 10 % 2 == 0){
+        right();
+      }
+      else{
+        left();
+      }
     }
     else{
-      left();
+      forward(1000);
     }
-  }
-  else{
-    forward(1000);
   }
 }
 
 void from214To215(){
-  forward(1500);
+  forward(1200);
   left();
   speedUp();
-  forward(9000);
+  forward(3000);
+  forward(3000);
+  forward(3000);
   right();
   stopRobot();
 }
