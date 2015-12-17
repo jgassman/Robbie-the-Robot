@@ -27,7 +27,10 @@ void setup() {
 
 void loop() {
   from214To215();
-  stopRobot();
+  //wander();
+  //speedUp();
+  //forward(3000);
+  //slowDown();
   delay(5000);
 }
 
@@ -39,10 +42,26 @@ void forward(int goTime){
     }
     int curTime = millis();
     digitalWrite(rMotor, HIGH);
-    delayMicroseconds(1750);
-    digitalWrite(rMotor,LOW);
     digitalWrite(lMotor, HIGH);
     delayMicroseconds(1750);
+    digitalWrite(rMotor,LOW);
+    digitalWrite(lMotor, LOW);
+    delayMicroseconds(5250);
+    goneTime += millis() - curTime;
+  }
+}
+
+void backward(int goTime) {
+  int goneTime = 0;
+  while(goneTime < goTime){
+    if(isStuck()){
+      break;
+    }
+    int curTime = millis();
+    digitalWrite(rMotor, HIGH);
+    digitalWrite(lMotor, HIGH);
+    delayMicroseconds(1250);
+    digitalWrite(rMotor, LOW);
     digitalWrite(lMotor, LOW);
     delayMicroseconds(5250);
     goneTime += millis() - curTime;
@@ -50,7 +69,7 @@ void forward(int goTime){
 }
 
 void speedUp() {
-  for(int i = 1500; i <= 1750; i+=10){
+  for(int i = 1500; i <= 1750; i+=5){
     if(isStuck()){
       break;
     }
@@ -64,8 +83,22 @@ void speedUp() {
   }
 }
 
+void speedBack(){
+  for(int i = 1500; i >= 1250; i-=5){
+  if(isStuck()){
+      break;
+    }
+    digitalWrite(rMotor, HIGH);
+    digitalWrite(rMotor, HIGH);
+    delayMicroseconds(i);
+    digitalWrite(lMotor, LOW);
+    digitalWrite(lMotor, LOW);
+    delayMicroseconds(5250);
+  }
+}
+
 void slowDown(){
- for(int i = 1750; i >= 1500; i+=10){
+ for(int i = 1750; i >= 1500; i-=5){
    if(isStuck()){
      break;
    }
@@ -75,7 +108,6 @@ void slowDown(){
    digitalWrite(rMotor, LOW);    
    digitalWrite(lMotor, LOW);
    delayMicroseconds(5250);
-   delayMicroseconds(150);
   }
 }
 
@@ -89,6 +121,7 @@ void stopRobot(){
 }
 
 void right(){
+  stopRobot();
   digitalWrite(lMotor, HIGH);
   delayMicroseconds(1750);
   digitalWrite(lMotor,LOW);
@@ -101,6 +134,7 @@ void right(){
 }
 
 void left(){
+  stopRobot();
   digitalWrite(rMotor, HIGH);
   delayMicroseconds(1750);
   digitalWrite(rMotor,LOW);
@@ -128,12 +162,12 @@ void wander(){
 }
 
 void from214To215(){
-  forward(2000);
+  forward(1500);
   left();
   speedUp();
-  forward(11000);
+  forward(9000);
   right();
-  forward(500);
+  stopRobot();
 }
 
 bool isStuck(){

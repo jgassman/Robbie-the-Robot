@@ -3,10 +3,13 @@
 Robot Robbie;
 
 void setup() {
+  Serial.begin(9600);
 }
 
 void loop() {
-  Robbie.forward(1000);
-  Robbie.right();
-  Robbie.backwards(1000);
+  Robbie.speedUp();
+  Robbie.forward(2000);
+  Robbie.slowDown();
+  Robbie.stopRobot();
+  delay(10000);
 }

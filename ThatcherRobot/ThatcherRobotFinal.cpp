@@ -8,16 +8,16 @@
 #include "ThatcherRobotFinal.h"
 
 Robot::Robot(){
-	#define rMotor 13 /** The variable to control the right motor controller */
-	#define lMotor 12 /** The variable to control the left motor controller */
+	const static int rMotor = 13; /** The variable to control the right motor controller */
+	const static int lMotor = 12 /** The variable to control the left motor controller */
 
-	#define fSensor A1     /** \def The pin connected to the front sensor */
-	#define bSensor A2     /** \def The pin connected to the back sensor */
+	const static int fSensor = A1;     /** The pin connected to the front sensor */
+	const static int bSensor = A2;     /** The pin connected to the back sensor */
 
 	int fValue;  /** A variable to hold the reading from the front sensor */
 	int bValue;   /** A variable to hold the reading from the back sensor */
 
-	const static int PROX_THRESHOLD = 150;  /** The sensor value to signal the robot should stop */
+	const static int PROX_THRESHOLD = 100;  /** The sensor value to signal the robot should stop */
 	Adafruit_BMP085_Unified bmp;	/** The altitude sensor */
 	
 	pinMode(rMotor, OUTPUT);
@@ -31,7 +31,6 @@ Robot::Robot(){
 	digitalWrite(rMotor, LOW);
 	digitalWrite(lMotor, LOW);
 	delay(5250);
-	Serial.begin(9600);
 	randomSeed(analogRead(0));
 }
 
@@ -41,7 +40,7 @@ Robot::Robot(){
  * robot gradually speeds up to top speed.
  */
 void Robot::speedUp() {
-  for(int i = 1500; i <= 1750; i+=10){
+  for(int i = 1500; i <= 1750; i+=5){
     if(isStuck()){
 		break;
 	}
@@ -71,10 +70,9 @@ void Robot::forward(int goTime){
 
     int curTime = millis();
     digitalWrite(rMotor, HIGH);
+	digitalWrite(lMotor, HIGH);
     delayMicroseconds(1750);
     digitalWrite(rMotor,LOW);
-    digitalWrite(lMotor, HIGH);
-    delayMicroseconds(1750);
     digitalWrite(lMotor, LOW);
     delayMicroseconds(5250);
     goneTime += millis() - curTime;
@@ -112,7 +110,7 @@ void Robot::backward(int goTime) {
  * controllers so that the robot speeds up in the backwards direction.
  */
 void Robot::speedBack(){
-  for(int i = 1500; i >= 1250; i++){
+  for(int i = 1500; i >= 1250; i-=5){
 	if(isStuck()){
       break;
     }
@@ -232,12 +230,12 @@ void Robot::wander(){
  * in the Physics building.
  */
 void Robot::from214To215(){
-  Robot::forward(2000);
+  forward(2000);
   left();
-  Robot::speedUp();
-  Robot::forward(11000);
-  Robot::right();
-  forward(500);
+  speedUp();
+  forward(9000);
+  right();
+  stopRobot();
 }
 
 /** \brief Determines the current floor.
@@ -258,4 +256,24 @@ int Robot::getFloor(){
     altitude = bmp.pressureToAltitude(seaLevelPressure, event.pressure);
   }
   //TODO: CREATE LOOKUP TABLE AND RETURN THE FLOOR
+}
+
+/** \brief Slows the robot to a stop.
+ *
+ * This function sends pulses of decreasing width to the motor controllers
+ * so that the robot slows to a stop.
+ */
+void Robot::slowDown(){
+	for(int i = 1750; i >= 1500; i+=10){
+		if(isStuck()){
+			break;
+		}
+	digitalWrite(rMotor, HIGH);
+	digitalWrite(lMotor, HIGH);
+	delayMicroseconds(i);
+	digitalWrite(rMotor, LOW);    
+	digitalWrite(lMotor, LOW);
+	delayMicroseconds(5250);
+	delayMicroseconds(150);
+	}
 }

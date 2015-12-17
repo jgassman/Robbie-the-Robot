@@ -24,6 +24,7 @@ class Robot
 	void wander();
 	bool isStuck();
 	void from214To215();
+	void slowDown();
 	
   private:
 	int fValue;
